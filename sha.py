@@ -148,7 +148,7 @@ class hash:
     K = []
     # FIPS-180-4 5.3.1
     # Constant inital hash values
-    H = [int('67452301', 16),
+    H_sha160 = [int('67452301', 16),
         int('efcdab89', 16),
         int('98badcfe', 16),
         int('10325476', 16),
@@ -181,18 +181,18 @@ class hash:
             inital_message = ppp.from_file(message)
         # Preproccess (converted) message (Padding & Parsing)
         preproccessed_message = prep.prep(inital_message)
-        # Set H variable with inital hash value
-        H = [hash.get_H()]
+        # Set H_sha160 variable with inital hash value
+        H_sha160 = [hash.get_H_sha160()]
         # FIPS-180-4 6.2.2
-        # Foreach parsed block, create message schedule and hash, then append hash values to $H
+        # Foreach parsed block, create message schedule and hash, then append hash values to $H_sha160
         for i in range(1, len(preproccessed_message) + 1):
             schedule = sched.create_schedule(preproccessed_message[i-1])
-            message_hashed = hash.hash(schedule, H, i)
-            H.append(message_hashed)
+            message_hashed = hash.hash(schedule, H_sha160, i)
+            H_sha160.append(message_hashed)
         # Create msg variable (This will be final result)
         msg = ''
-        # Foreach word in the last entry of H
-        for w in H[-1]:
+        # Foreach word in the last entry of H_sha160
+        for w in H_sha160[-1]:
             # Add word in hex to $msg string variable
             msg += hex(w)[2:].zfill(8)
         return msg
@@ -249,18 +249,18 @@ class hash:
     # FIPS-180-4 5.3.2
     # Get the (constant) inital hash values
     @staticmethod
-    def get_H():
-        return hash.H
+    def get_H_sha160():
+        return hash.H_sha160
     
     # FIPS-180-4 6.2.2
     @staticmethod
-    def hash(W, H, i):
+    def hash(W, H_sha160, i):
         # Set inital hash values from previous (final) hash values
-        a = H[i-1][0]
-        b = H[i-1][1]
-        c = H[i-1][2]
-        d = H[i-1][3]
-        e = H[i-1][4]
+        a = H_sha160[i-1][0]
+        b = H_sha160[i-1][1]
+        c = H_sha160[i-1][2]
+        d = H_sha160[i-1][3]
+        e = H_sha160[i-1][4]
         # Iterate 80 times
         for t in range(80):
             if 0 <= t <= 19:
@@ -279,11 +279,11 @@ class hash:
             b = a
             a = T
         # Calculate final hash values
-        H0 = (H[i-1][0] + a) % 2 ** 32
-        H1 = (H[i-1][1] + b) % 2 ** 32
-        H2 = (H[i-1][2] + c) % 2 ** 32
-        H3 = (H[i-1][3] + d) % 2 ** 32
-        H4 = (H[i-1][4] + e) % 2 ** 32
+        H0 = (H_sha160[i-1][0] + a) % 2 ** 32
+        H1 = (H_sha160[i-1][1] + b) % 2 ** 32
+        H2 = (H_sha160[i-1][2] + c) % 2 ** 32
+        H3 = (H_sha160[i-1][3] + d) % 2 ** 32
+        H4 = (H_sha160[i-1][4] + e) % 2 ** 32
         # Return final hash values
         return [H0, H1, H2, H3, H4]
 
