@@ -243,6 +243,84 @@ class hash:
         int('64f98fa7', 16),
         int('befa4fa4', 16)]
 
+    # FIPS-180-4 4.2.2
+    # Constant values
+    K_sha256 = [int('428a2f98', 16),
+        int('71374491', 16),
+        int('b5c0fbcf', 16),
+        int('e9b5dba5', 16),
+        int('3956c25b', 16),
+        int('59f111f1', 16),
+        int('923f82a4', 16),
+        int('ab1c5ed5', 16),
+        int('d807aa98', 16),
+        int('12835b01', 16),
+        int('243185be', 16),
+        int('550c7dc3', 16),
+        int('72be5d74', 16),
+        int('80deb1fe', 16),
+        int('9bdc06a7', 16),
+        int('c19bf174', 16),
+        int('e49b69c1', 16),
+        int('efbe4786', 16),
+        int('0fc19dc6', 16),
+        int('240ca1cc', 16),
+        int('2de92c6f', 16),
+        int('4a7484aa', 16),
+        int('5cb0a9dc', 16),
+        int('76f988da', 16),
+        int('983e5152', 16),
+        int('a831c66d', 16),
+        int('b00327c8', 16),
+        int('bf597fc7', 16),
+        int('c6e00bf3', 16),
+        int('d5a79147', 16),
+        int('06ca6351', 16),
+        int('14292967', 16),
+        int('27b70a85', 16),
+        int('2e1b2138', 16),
+        int('4d2c6dfc', 16),
+        int('53380d13', 16),
+        int('650a7354', 16),
+        int('766a0abb', 16),
+        int('81c2c92e', 16),
+        int('92722c85', 16),
+        int('a2bfe8a1', 16),
+        int('a81a664b', 16),
+        int('c24b8b70', 16),
+        int('c76c51a3', 16),
+        int('d192e819', 16),
+        int('d6990624', 16),
+        int('f40e3585', 16),
+        int('106aa070', 16),
+        int('19a4c116', 16),
+        int('1e376c08', 16),
+        int('2748774c', 16),
+        int('34b0bcb5', 16),
+        int('391c0cb3', 16),
+        int('4ed8aa4a', 16),
+        int('5b9cca4f', 16),
+        int('682e6ff3', 16),
+        int('748f82ee', 16),
+        int('78a5636f', 16),
+        int('84c87814', 16),
+        int('8cc70208', 16),
+        int('90befffa', 16),
+        int('a4506ceb', 16),
+        int('bef9a3f7', 16),
+        int('c67178f2', 16)
+        ]
+    # FIPS-180-4 5.3.3
+    # Constant inital hash values
+    H_sha256 = [int('6a09e667', 16),
+        int('bb67ae85', 16),
+        int('3c6ef372', 16),
+        int('a54ff53a', 16),
+        int('510e527f', 16),
+        int('9b05688c', 16),
+        int('1f83d9ab', 16),
+        int('5be0cd19', 16)]
+
     # Main function, return sha160 hash of input
     # Message_format's:
     # 0 = ASCII
@@ -319,6 +397,40 @@ class hash:
             # Add word in hex to $msg string variable
             msg += hex(w)[2:].zfill(8)
         return msg
+    @staticmethod
+    def sha256(message, message_format=0):
+        # Set inital message
+        inital_message = ppp.from_str(message)
+        # Convert message if neccessary
+        if message_format == 0:
+            inital_message = ppp.from_str(message)
+        elif message_format == 1:
+            inital_message = ppp.from_int(message)
+        elif message_format == 2:
+            inital_message = ppp.from_hex(message)
+        elif message_format == 3:
+            inital_message = ppp.from_bin(message)
+        elif message_format == 4:
+            inital_message = ppp.from_oct(message)
+        elif message_format == 5:
+            inital_message = ppp.from_file(message)
+        # Preproccess (converted) message (Padding & Parsing)
+        preproccessed_message = prep.prep(inital_message)
+        # Set H variable with inital hash value
+        H = [hash.get_H_sha256()]
+        # FIPS-180-4 6.2.2
+        # Foreach parsed block, create message schedule and hash, then append hash values to $H
+        for i in range(1, len(preproccessed_message) + 1):
+            schedule = sched.create_schedule_sha224(preproccessed_message[i-1])
+            message_hashed = hash.hash_sha224(schedule, H, i)
+            H.append(message_hashed)
+        # Create msg variable (This will be final result)
+        msg = ''
+        # Foreach word in the last entry of H
+        for w in H[-1]:
+            # Add word in hex to $msg string variable
+            msg += hex(w)[2:].zfill(8)
+        return msg
 
     # FIPS-180-4 2.2.2
     # Rotate bits to the right
@@ -377,6 +489,9 @@ class hash:
     @staticmethod
     def get_H_sha224():
         return hash.H_sha224
+    @staticmethod
+    def get_H_sha256():
+        return hash.H_sha256
     
     # FIPS-180-4 6.2.2
     @staticmethod
