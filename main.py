@@ -7,6 +7,6 @@ from sha import hash
 # Main function / Entry point | Set args variable to given arguments, except for the first one because that is just the script name (main.py, in this case)
 def main(args=sys.argv[1:]):
     # Print hash value of the first argument, interpret first argument as $mode
-    print(hash.sha256(args[0], int(args[1])))
+    print(hash.sha384(args[0], int(args[1])))
 # Call the main function after every potential function is defined
 main()
