@@ -154,7 +154,49 @@ class hash:
         int('10325476', 16),
         int('c3d2e1f0', 16)]
 
-    
+    # Main function, return sha160 hash of input
+    # Message_format's:
+    # 0 = ASCII
+    # 1 = Integer (Base 10)
+    # 2 = Hexadecimal (Base 16)
+    # 3 = Binary (Base 2)
+    # 4 = Octal (Base 8)
+    # 5 = From file
+    @staticmethod
+    def sha160(message, message_format=0):
+        # Set inital message
+        inital_message = ppp.from_str(message)
+        # Convert message if neccessary
+        if message_format == 0:
+            inital_message = ppp.from_str(message)
+        elif message_format == 1:
+            inital_message = ppp.from_int(message)
+        elif message_format == 2:
+            inital_message = ppp.from_hex(message)
+        elif message_format == 3:
+            inital_message = ppp.from_bin(message)
+        elif message_format == 4:
+            inital_message = ppp.from_oct(message)
+        elif message_format == 5:
+            inital_message = ppp.from_file(message)
+        # Preproccess (converted) message (Padding & Parsing)
+        preproccessed_message = prep.prep(inital_message)
+        # Set H variable with inital hash value
+        H = [hash.get_H()]
+        # FIPS-180-4 6.2.2
+        # Foreach parsed block, create message schedule and hash, then append hash values to $H
+        for i in range(1, len(preproccessed_message) + 1):
+            schedule = sched.create_schedule(preproccessed_message[i-1])
+            message_hashed = hash.hash(schedule, H, i)
+            H.append(message_hashed)
+        # Create msg variable (This will be final result)
+        msg = ''
+        # Foreach word in the last entry of H
+        for w in H[-1]:
+            # Add word in hex to $msg string variable
+            msg += hex(w)[2:].zfill(8)
+        return msg
+
     # FIPS-180-4 2.2.2
     # Rotate bits to the right
     @staticmethod
