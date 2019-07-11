@@ -29,20 +29,33 @@ class sched:
     # FIPS-180-4 6.1.2
     # (New word function for message schedule)
     @staticmethod
-    def MIX(t, init_words, w=32):
+    def MIX_sha160(t, init_words, w=32):
         if t >= 16:
             return sched.ROTL(init_words[t-3] ^ init_words[t-8] ^ init_words[t-14] ^ init_words[t-16], 1)
+        return init_words[t]
+    @staticmethod
+    def MIX_sha224(t, init_words, w=32):
+        if t >= 16:
+            return int((sched.sigma1(init_words[t-2]) + init_words[t-7] + sched.sigma0(init_words[t-15]) + init_words[t-16])   % 2 ** 32)
         return init_words[t]
 
     # FIPS-180-4 6.1.2
     # Create message schedule for block i
     @staticmethod
-    def create_schedule(inital_words):
+    def create_schedule_sha160(inital_words):
         W = []
         for t in range(0, 16):
-            W.append(sched.MIX(t, inital_words))
+            W.append(sched.MIX_sha160(t, inital_words))
         for t in range(16, 80):
-            W.append(sched.MIX(t, W))
+            W.append(sched.MIX_sha160(t, W))
+        return W
+    @staticmethod
+    def create_schedule_sha224(inital_words):
+        W = []
+        for t in range(0, 16):
+            W.append(sched.MIX_sha224(t, inital_words))
+        for t in range(16, 64):
+            W.append(sched.MIX_sha224(t, W))
         return W
 
 class ppp:
@@ -262,7 +275,7 @@ class hash:
         # FIPS-180-4 6.2.2
         # Foreach parsed block, create message schedule and hash, then append hash values to $H_sha160
         for i in range(1, len(preproccessed_message) + 1):
-            schedule = sched.create_schedule(preproccessed_message[i-1])
+            schedule = sched.create_schedule_sha160(preproccessed_message[i-1])
             message_hashed = hash.hash_sha160(schedule, H_sha160, i)
             H_sha160.append(message_hashed)
         # Create msg variable (This will be final result)
@@ -296,7 +309,7 @@ class hash:
         # FIPS-180-4 6.2.2
         # Foreach parsed block, create message schedule and hash, then append hash values to $H
         for i in range(1, len(preproccessed_message) + 1):
-            schedule = sched.create_schedule(preproccessed_message[i-1])
+            schedule = sched.create_schedule_sha224(preproccessed_message[i-1])
             message_hashed = hash.hash_sha224(schedule, H, i)
             H.append(message_hashed)
         # Create msg variable (This will be final result)
@@ -355,16 +368,6 @@ class hash:
             return hash.Maj(x, y, z)
         if 60 <= t and t <= 79:
             return hash.Parity(x, y, z)
-    @staticmethod
-    def f_sha224(x, y, z, t):
-        if 0 <= t and t <= 19:
-            return hash_sha224.Ch(x, y, z)
-        if 20 <= t and t <= 39:
-            return hash_sha224.Parity(x, y, z)
-        if 40 <= t and t <= 59:
-            return hash_sha224.Maj(x, y, z)
-        if 60 <= t and t <= 79:
-            return hash_sha224.Parity(x, y, z)
 
     # FIPS-180-4 5.3.2
     # Get the (constant) inital hash values
