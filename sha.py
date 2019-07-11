@@ -1,6 +1,21 @@
 import sys
 import math
 
+class IV:
+    def IV(t):
+        H = [int('6a09e667f3bcc908', 16) ^ int('a5a5a5a5a5a5a5a5', 16),
+        int('bb67ae8584caa73b', 16) ^ int('a5a5a5a5a5a5a5a5', 16),
+        int('3c6ef372fe94f82b', 16) ^ int('a5a5a5a5a5a5a5a5', 16),
+        int('a54ff53a5f1d36f1', 16) ^ int('a5a5a5a5a5a5a5a5', 16),
+        int('510e527fade682d1', 16) ^ int('a5a5a5a5a5a5a5a5', 16),
+        int('9b05688c2b3e6c1f', 16) ^ int('a5a5a5a5a5a5a5a5', 16),
+        int('1f83d9abfb41bd6b', 16) ^ int('a5a5a5a5a5a5a5a5', 16),
+        int('5be0cd19137e2179', 16) ^ int('a5a5a5a5a5a5a5a5', 16)]
+        t = hash.sha512_for_t('SHA-512/t'.replace('t', str(t)), H)
+        H = []
+        for i in range(0, 8):
+            H.append(int(t[i*16:(i* 16)+16], 16))
+        return H
 
 class sched:
 
@@ -786,6 +801,45 @@ class hash:
             msg += hex(w)[2:].zfill(8)
         return msg
 
+    @staticmethod
+    def sha512_for_t(message, h, trunc=512, message_format=0):
+        # Set inital message
+        inital_message = ppp.from_str(message)
+        # Convert message if neccessary
+        if message_format == 0:
+            inital_message = ppp.from_str(message)
+        elif message_format == 1:
+            inital_message = ppp.from_int(message)
+        elif message_format == 2:
+            inital_message = ppp.from_hex(message)
+        elif message_format == 3:
+            inital_message = ppp.from_bin(message)
+        elif message_format == 4:
+            inital_message = ppp.from_oct(message)
+        elif message_format == 5:
+            inital_message = ppp.from_file(message)
+        # Preproccess (converted) message (Padding & Parsing)
+        preproccessed_message = prep_sha384.prep(inital_message)
+        # Set H variable with inital hash value
+        H = [h]
+        # FIPS-180-4 6.2.2
+        # Foreach parsed block, create message schedule and hash, then append hash values to $H
+        for i in range(1, len(preproccessed_message) + 1):
+            schedule = sched.create_schedule_sha512(preproccessed_message[i-1])
+            message_hashed = hash.hash_sha512(schedule, H, i)
+            H.append(message_hashed)
+        # Create msg variable (This will be final result)
+        msg = ''
+        # Foreach word in the last entry of H
+        for w in H[-1]:
+            # Add word in hex to $msg string variable
+            msg += bin(w)[2:].zfill(64)
+        msg = hex(int(msg[:trunc] ,2))[2:]
+        return msg
+    @staticmethod
+    def sha512_t(message, t):
+        h = hash.sha512_for_t(message, IV.IV(t), t)[:]
+        return h
 
     # FIPS-180-4 2.2.2
     # Rotate bits to the right
