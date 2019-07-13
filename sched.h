@@ -5,7 +5,7 @@
 // Rotate bits of a 32 bit integer to the right by n bits
 uint32_t SCHED_ROTR32(uint32_t x, int n)
 {
-    return x >> n | x << 32-n;
+    return (x >> n | x << 32-n) & 0b0000000011111111111111111111111111111111;
 }
 
 // Sigma 0 function as specified in FIPS-180-4 4.1.2

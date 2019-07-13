@@ -82,7 +82,6 @@ int *padd(char *msg) {
         int h3 = new_msg[y+2] << (8*1);
         int h4 = new_msg[y+3];
         result[l] = h1 + h2 + h3 + h4;
-        printf("%d.", result[l]);
         l++;
     }
 
