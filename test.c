@@ -17,9 +17,7 @@ int main (int argc, char *argv[]) {
 
     char *msg = argv[1];
 
-    padd(msg);
-
-    printf("%d", SCHED_SIGMA1_32(5));
+    CREATE_SCHED32(padd(msg));
     
 
     return 0;
