@@ -62,11 +62,30 @@ int *padd(char *msg) {
     // printf("%ld", sizeof(appendix_2));
 
     // Print array
-    printf("\n");
-    for (int y = 0; y < len; y++) {
-        printf("%d", int_to_int(new_msg[y]));
-    }
-    printf("\n");
+    // printf("\n");
+    // for (int y = 0; y < len; y++) {
+    //     printf("%d", int_to_int(new_msg[y]));
+    // }
+    // printf("\n");
 
-    return new_msg;
+    // Parse
+    // Lenght of array
+    int n_len = len/4;
+    // Initalize new array
+    int *result;
+    result = malloc(sizeof(uint32_t) * n_len);
+    // Will be used to keep track of the current index in result
+    int l = 0;
+    for (int y = 0; y < len; y+=4) {
+        int h1 = new_msg[y] << (8*3);
+        int h2 = new_msg[y+1] << (8*2);
+        int h3 = new_msg[y+2] << (8*1);
+        int h4 = new_msg[y+3];
+        result[l] = h1 + h2 + h3 + h4;
+        printf("%d.", result[l]);
+        l++;
+    }
+
+
+    return result;
 }
