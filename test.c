@@ -7,7 +7,7 @@
 
 int main (int argc, char*argv[]) {
 
-    printf("%d", SIGMA0_32(8));
+    printf("%d", SIGMA1_32(8));
 
     return 0;
 }
