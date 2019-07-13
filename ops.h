@@ -22,3 +22,8 @@ uint32_t SIGMA0_32(uint32_t x) {
 uint32_t SIGMA1_32(uint32_t x) {
     return ROTR32(x, 6) ^ ROTR32(x, 11) ^ ROTR32(x, 25);
 }
+
+// Ch function as specified in FIPS-180-4 4.1.1
+uint32_t Ch32(uint32_t x, uint32_t y, uint32_t z) {
+    return (x & y) ^ (~x & z);
+}
