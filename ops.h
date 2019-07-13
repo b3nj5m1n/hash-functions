@@ -32,3 +32,8 @@ uint32_t Ch32(uint32_t x, uint32_t y, uint32_t z) {
 uint32_t Maj32(uint32_t x, uint32_t y, uint32_t z) {
     return (x & y) ^ (x & z) ^ (y & z);
 }
+
+// Parity function as specified in FIPS-180-4 4.1.1
+uint32_t Parity32(uint32_t x, uint32_t y, uint32_t z) {
+    return x ^ y ^ z;
+}
